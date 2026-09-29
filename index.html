@@ -5,11 +5,11 @@
 <title>Skybrawl</title>
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
 <meta name="description" content="Skybrawl - a browser jetpack deathmatch. Share a four character room code and play from separate devices." />
-<meta name="theme-color" content="#E8DCC6" />
+<meta name="theme-color" content="#0B0A10" />
 <style>
   :root{ padding: env(safe-area-inset-top, 0px) 0 env(safe-area-inset-bottom, 0px); }
   html, body { height: 100%; }
-  body { margin: 0; font: 14px/1.4 system-ui, -apple-system, "Segoe UI", sans-serif; background: #E8DCC6; }
+  body { margin: 0; font: 14px/1.4 system-ui, -apple-system, "Segoe UI", sans-serif; background: #07060C; }
   img { max-width: 100%; }
   [hidden] { display: none !important; }
 </style>
@@ -129,6 +129,29 @@ body[data-style="shadow"] .pill.pwr.good{color:#8AF3C8;border-color:#8AF3C8}
 .board .r.you .nm{color:var(--ink);font-weight:600}
 .board .r.lead .ko{color:var(--amber)}
 
+@media (max-height:520px){
+  .app{padding:4px 6px;gap:4px}
+  .caption{display:none}
+  .hudbar{padding:3px 8px;gap:5px;border-radius:7px}
+  .hudbar .m{gap:4px}
+  .board .r{font-size:8.5px;line-height:1.15}
+  .mid .clock{font-size:15px;line-height:1}
+  .mid .goal{font-size:7px}
+  .who b{font-size:11px}
+  .who .wep{font-size:8px}
+  .mk{font-size:6.5px}
+  .pill{font-size:7.5px;padding:2px 6px}
+  .hudbar{width:100%;padding:2px 8px}
+  .self{gap:2px}
+  .meters{gap:2px}
+  .m{grid-template-columns:18px 1fr 22px;gap:4px}
+  .m b{font-size:8px}
+  .track{height:5px}
+  .pills{gap:3px}
+  .mid .goal{display:none}
+  .board{gap:0}
+  .stage{max-height:none;min-height:0;flex:1 1 auto;aspect-ratio:16/10;width:auto;max-width:100%}
+}
 @media (max-width:620px){
   .hudbar{grid-template-columns:1fr auto;padding:4px 6px;gap:4px;border-radius:7px}
   .stage{max-height:calc(100% - 120px)}
@@ -208,8 +231,21 @@ h2{margin:0;font-size:clamp(20px,4.6vw,32px);font-weight:700;letter-spacing:.12e
 .pickInfo b{color:var(--ink);letter-spacing:.08em}
 .pickInfo em{font-style:normal;color:var(--amber)}
 #lobby{overflow:hidden;padding:0}
+body.menu .stage{width:100%;aspect-ratio:auto;height:100%;max-height:100%;flex:1 1 auto;border-radius:0;border:0;box-shadow:none}
+body.menu .app{padding:0;gap:0}
+body.menu .caption{display:none}
 .fit{position:absolute;left:50%;top:50%;transform:translate(-50%,-50%);transform-origin:center center;display:flex;flex-direction:column;align-items:center;gap:7px;width:min(980px,100%);padding:0 12px}
 .barRow{display:flex;gap:8px;align-items:center;justify-content:center;flex-wrap:wrap}
+@media (max-width:620px){
+  .card{width:98px;padding:5px 6px 6px}
+  .card .port{width:46px;height:44px}
+  .card .nm{font-size:10.5px}
+  .mapcard canvas{width:70px;height:44px}
+  .mapcard .mn{font-size:8.5px}
+  .roomBox{padding:6px 8px;gap:8px}
+  .roomBox canvas.qr{width:84px;height:84px}
+  .rbCode{font-size:26px}
+}
 button.go{font-family:var(--font-display);font-size:14px;font-weight:700;letter-spacing:.18em;text-transform:uppercase;padding:12px 32px;border-radius:9px;cursor:pointer;color:#04121A;background:linear-gradient(180deg,#7FF0F5,var(--cyan));border:none;box-shadow:0 0 28px rgba(86,226,233,.45);transition:transform .1s ease,box-shadow .2s ease}
 button.go:hover{transform:translateY(-1px);box-shadow:0 0 38px rgba(86,226,233,.6)}
 button.go:active{transform:translateY(0)}
@@ -236,6 +272,9 @@ body[data-style="riso"] .rooms .mode.on{background:#2F5BD0;border-color:#2F5BD0;
 .roomBox canvas.qr{width:104px;height:104px;border-radius:5px;background:#fff;display:block;flex:none;image-rendering:pixelated}
 .rbSide{display:grid;gap:4px;justify-items:start;text-align:left}
 .rbBtns{display:flex;gap:6px}
+.scanWrap{display:flex;flex-direction:column;align-items:center;gap:6px}
+.scanWrap[hidden]{display:none!important}
+.scanWrap video{width:200px;height:150px;object-fit:cover;border-radius:9px;border:2px solid var(--amber);background:#000}
 .scanTip{font-family:var(--font-data);font-size:9px;letter-spacing:.06em;color:var(--muted);max-width:150px;line-height:1.4;text-align:left}
 .roomBox[hidden]{display:none!important}
 .rbTop{font-family:var(--font-data);font-size:9px;letter-spacing:.24em;text-transform:uppercase;color:var(--muted)}
@@ -268,6 +307,8 @@ td:first-child,td:nth-child(2){text-align:left}
 td:nth-child(2){color:var(--muted)}
 tr.you td{color:var(--cyan)}
 tr.you td:first-child{font-weight:600}
+.turnTip{display:none;font-family:var(--font-data);font-size:9.5px;letter-spacing:.1em;color:var(--amber);text-align:center}
+@media (orientation:portrait) and (max-width:620px){ body:not(.menu) .turnTip{display:block} }
 .caption{font-family:var(--font-data);font-size:10.5px;letter-spacing:.1em;color:#55707F;text-align:center;line-height:1.6}
 @media (prefers-reduced-motion:reduce){*{animation:none!important;transition:none!important}}
 </style>
@@ -315,7 +356,12 @@ tr.you td:first-child{font-weight:600}
       <div class="joinRow" id="joinRow" hidden>
         <input id="codeIn" maxlength="4" placeholder="CODE" autocomplete="off" spellcheck="false" />
         <button class="snd" id="joinGo" type="button">Connect</button>
+        <button class="snd" id="scanBtn" type="button">Scan QR</button>
         <span class="scanTip">or point your phone camera at the host QR</span>
+      </div>
+      <div class="scanWrap" id="scanWrap" hidden>
+        <video id="scanVid" playsinline muted></video>
+        <button class="snd" id="scanStop" type="button">Stop camera</button>
       </div>
       <div class="roomBox" id="roomBox" hidden>
         <canvas class="qr" id="qrCv" width="140" height="140"></canvas>
@@ -339,8 +385,8 @@ tr.you td:first-child{font-weight:600}
 
       <div class="barRow">
         <div class="styles" id="styles">
-          <button type="button" data-s="riso" aria-pressed="true">Riso</button>
-          <button type="button" data-s="shadow" aria-pressed="false">Shadow</button>
+          <button type="button" data-s="shadow" aria-pressed="true">Shadow</button>
+          <button type="button" data-s="riso" aria-pressed="false">Riso</button>
         </div>
         <button class="go" id="startBtn">Enter arena</button>
         <button class="snd" id="sndBtn" type="button">Sound on</button>
@@ -362,6 +408,7 @@ tr.you td:first-child{font-weight:600}
   </div>
 
   <div class="feed" id="feed"></div>
+  <p class="turnTip">Turn your phone sideways for a bigger arena</p>
   <p class="caption" id="caption">Single device demo &middot; bots stand in for players</p>
 </div>
 
@@ -610,7 +657,7 @@ tr.you td:first-child{font-weight:600}
     foundry: { paper: '#F4E0CE', tint: INK.pink,   sky: ['#1C0606', '#5A1208', '#C9401A'], orb: null },
     latent:  { paper: '#E7E9F6', tint: INK.violet, sky: ['#08081A', '#161540', '#04040C'], orb: null }
   };
-  var STYLE = 'riso';
+  var STYLE = 'shadow';
   function PAL() { return PALETTE[M.id]; }
   function isRiso() { return STYLE === 'riso'; }
 
@@ -924,7 +971,7 @@ tr.you td:first-child{font-weight:600}
     if (on) {
       var kn = document.getElementById('lobbyNote');
       if (kn) kn.innerHTML = 'Left thumb moves and jets &middot; right thumb aims and fires &middot; skill button bottom right';
-      el.abKey.textContent = 'Skill';
+      if (el.abKey) el.abKey.textContent = 'Skill';
       el.abBtn.classList.add('show');
     }
   }
@@ -3081,6 +3128,8 @@ var QR = (function () {
     if (game.players[NET.you]) game.players[NET.you].name = 'YOU';
     running = true; shake = 0; hurtFlash = 0;
     el.lobby.hidden = true; el.result.hidden = true; el.hud.hidden = false;
+    document.body.classList.remove('menu');
+    stopScan();
     boardKey = '';
     el.charName.textContent = ME().ch.name;
     whiteFlash = 0.5; timeScale = 1; hitMark = 0;
@@ -3097,6 +3146,8 @@ var QR = (function () {
     game = newGame();
     running = true; shake = 0; hurtFlash = 0;
     el.lobby.hidden = true; el.result.hidden = true; el.hud.hidden = false;
+    document.body.classList.remove('menu');
+    stopScan();
     boardKey = '';
     el.charName.textContent = chosen.name;
     whiteFlash = 0.5; timeScale = 1; hitMark = 0;
@@ -3119,7 +3170,7 @@ var QR = (function () {
     var order = game.players.slice().sort(function (a, b) { return b.kills - a.kills || a.downs - b.downs; });
     var won = order[0] === me;
     el.hud.hidden = true;
-    el.result.hidden = false;
+    el.result.hidden = false; document.body.classList.add('menu');
     el.resEyebrow.textContent = won ? 'Skybrawl' : 'Match over';
     el.resTitle.textContent = won ? 'Victory' : (me.kills === order[0].kills ? 'Tied' : 'Defeat');
     SFX.over(won); buzz(won ? [60, 60, 60, 60, 140] : [200]);
@@ -3186,6 +3237,7 @@ var QR = (function () {
     if (fitRq) return;
     fitRq = requestAnimationFrame(function () { fitRq = 0; fitLobby(); });
   }
+  document.body.classList.add('menu');
   window.addEventListener('resize', queueFit);
   window.addEventListener('orientationchange', queueFit);
   setTimeout(queueFit, 60);
@@ -3196,6 +3248,7 @@ var QR = (function () {
       document.getElementById(id).classList.toggle('on', id === m);
     });
     document.getElementById('joinRow').hidden = m !== 'mJoin';
+    if (m !== 'mJoin') stopScan();
     document.getElementById('startBtn').textContent = m === 'mHost' ? 'Start the match' : 'Enter arena';
     document.getElementById('startBtn').hidden = (m === 'mJoin');
     document.getElementById('lobbyNote').innerHTML = m === 'mHost'
@@ -3232,6 +3285,55 @@ var QR = (function () {
     } catch (e) { btn.textContent = 'Copy failed'; }
   });
 
+  var scanStream = null, scanTimer = 0;
+  function stopScan() {
+    if (scanTimer) { clearInterval(scanTimer); scanTimer = 0; }
+    if (scanStream) {
+      try { scanStream.getTracks().forEach(function (t) { t.stop(); }); } catch (e) {}
+      scanStream = null;
+    }
+    var w = document.getElementById('scanWrap');
+    if (w) w.hidden = true;
+    queueFit();
+  }
+  function startScan() {
+    var wrap = document.getElementById('scanWrap'), vid = document.getElementById('scanVid');
+    if (!navigator.mediaDevices || !navigator.mediaDevices.getUserMedia) {
+      netStatus('This browser will not open the camera here. Type the code instead.', true); return;
+    }
+    if (typeof window.BarcodeDetector === 'undefined') {
+      netStatus('No built in scanner here. Open your phone camera app on the host QR, then type the code.', true); return;
+    }
+    var det;
+    try { det = new window.BarcodeDetector({ formats: ['qr_code'] }); }
+    catch (e) { netStatus('No built in scanner here. Use your phone camera app on the QR.', true); return; }
+    netStatus('Point the camera at the host QR code.');
+    navigator.mediaDevices.getUserMedia({ video: { facingMode: 'environment' } }).then(function (st) {
+      scanStream = st;
+      vid.srcObject = st;
+      vid.play().catch(function () {});
+      wrap.hidden = false;
+      queueFit();
+      scanTimer = setInterval(function () {
+        det.detect(vid).then(function (codes) {
+          if (!codes || !codes.length) return;
+          var raw = String(codes[0].rawValue || '');
+          var m = /[?&#]r=([A-Za-z0-9]{4})/.exec(raw) || /^\s*([A-Za-z0-9]{4})\s*$/.exec(raw);
+          if (!m) { netStatus('That is not a Skybrawl room code.', true); return; }
+          var code = m[1].toUpperCase();
+          stopScan();
+          var inp = document.getElementById('codeIn');
+          if (inp) inp.value = code;
+          joinRoom(code);
+        }).catch(function () {});
+      }, 300);
+    }).catch(function () {
+      netStatus('Camera blocked. Allow camera access, or type the code.', true);
+    });
+  }
+  document.getElementById('scanBtn').addEventListener('click', function () { initAudio(); SFX.ui(); startScan(); });
+  document.getElementById('scanStop').addEventListener('click', function () { SFX.ui(); stopScan(); netStatus(''); });
+
   (function deepLink() {
     var m = /[?&#]r=([A-Za-z0-9]{4})/.exec(String(location.search) + String(location.hash));
     if (!m) return;
@@ -3258,6 +3360,7 @@ var QR = (function () {
   $('againBtn').addEventListener('click', function () {
     el.result.hidden = true;
     el.lobby.hidden = false;
+    document.body.classList.add('menu'); queueFit();
     running = false;
   });
 
