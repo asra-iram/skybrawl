@@ -238,6 +238,8 @@ body.menu .app{padding:0;gap:0}
 body.menu .caption{display:none}
 body.menu .feed{display:none}
 .fit{position:absolute;left:50%;top:50%;transform:translate(-50%,-50%);transform-origin:center center;display:flex;flex-direction:column;align-items:center;gap:7px;width:min(980px,100%);padding:0 12px}
+.go[disabled]{opacity:.45;cursor:not-allowed;filter:grayscale(.5)}
+.go[disabled]:hover{transform:none}
 .barRow{display:flex;gap:8px;align-items:center;justify-content:center;flex-wrap:wrap}
 @media (max-width:620px){
   .card{width:98px;padding:5px 6px 6px}
@@ -392,7 +394,7 @@ tr.you td:first-child{font-weight:600}
       <div class="roomBox" id="roomBox" hidden>
         <canvas class="qr" id="qrCv" width="140" height="140"></canvas>
         <div class="rbSide">
-          <span class="rbTop">Scan the code, or type it in</span>
+          <span class="rbTop">Scan or type the code &middot; up to 4 players</span>
           <b class="rbCode" id="roomCode">----</b>
           <div class="rbBtns">
             <button class="snd" id="copyCode" type="button">Copy code</button>
@@ -417,6 +419,7 @@ tr.you td:first-child{font-weight:600}
         <button class="go" id="startBtn">Enter arena</button>
         <button class="snd" id="sndBtn" type="button">Sound on</button>
         <button class="snd" id="fxBtn" type="button">Effects full</button>
+        <button class="snd" id="fsBtn" type="button">Full screen</button>
       </div>
       <p class="note" id="lobbyNote">A D move &middot; W jet &middot; mouse aim &middot; click fire &middot; Q skill &middot; R reload</p>
       </div>
@@ -3374,6 +3377,40 @@ var QRDEC = (function () {
   return { decode: decode };
 })();
 
+  function fsElement() {
+    return document.fullscreenElement || document.webkitFullscreenElement || document.msFullscreenElement || null;
+  }
+  function goFullscreen() {
+    if (fsElement()) return;
+    var e = document.documentElement;
+    var fn = e.requestFullscreen || e.webkitRequestFullscreen || e.msRequestFullscreen;
+    if (!fn) return;
+    try {
+      var r = fn.call(e);
+      if (r && r.then) r.then(lockLandscape, function () {});
+      else lockLandscape();
+    } catch (err) {}
+  }
+  function lockLandscape() {
+    try {
+      if (screen.orientation && screen.orientation.lock && window.innerWidth < 900) {
+        var pr = screen.orientation.lock('landscape');
+        if (pr && pr.catch) pr.catch(function () {});
+      }
+    } catch (err) {}
+    setTimeout(function () { resize(); queueFit(); }, 120);
+  }
+  function exitFullscreen() {
+    var fn = document.exitFullscreen || document.webkitExitFullscreen || document.msExitFullscreen;
+    if (fsElement() && fn) { try { fn.call(document); } catch (err) {} }
+  }
+  function toggleFullscreen() { if (fsElement()) exitFullscreen(); else goFullscreen(); }
+  document.addEventListener('fullscreenchange', function () {
+    var b = document.getElementById('fsBtn');
+    if (b) b.textContent = fsElement() ? 'Exit full screen' : 'Full screen';
+    setTimeout(function () { resize(); queueFit(); }, 120);
+  });
+
   var LIVE_URL = 'https://asra-iram.github.io/skybrawl/';
   function joinUrl(code) {
     var base = LIVE_URL;
@@ -3553,7 +3590,24 @@ var QRDEC = (function () {
     var cv = document.getElementById('qrCv');
     if (NET.code) drawQR(cv, joinUrl(NET.code));
     else if (cv) cv.style.display = 'none';
+    gateStart();
     queueFit();
+  }
+
+  function joinedCount() {
+    return NET.conns.filter(function (c) { return c.slot !== undefined && c.open !== false; }).length;
+  }
+  function gateStart() {
+    var b = document.getElementById('startBtn');
+    if (!b) return;
+    if (NET.mode === 'host') {
+      var n = joinedCount();
+      b.disabled = n === 0;
+      b.textContent = n === 0 ? 'Waiting for a player' : ('Start the match (' + (n + 1) + ' players)');
+    } else {
+      b.disabled = false;
+      b.textContent = 'Enter arena';
+    }
   }
 
   function leaveRoom() {
@@ -3731,10 +3785,10 @@ var QRDEC = (function () {
     });
     document.getElementById('joinRow').hidden = m !== 'mJoin';
     if (m !== 'mJoin') stopScan();
-    document.getElementById('startBtn').textContent = m === 'mHost' ? 'Start the match' : 'Enter arena';
     document.getElementById('startBtn').hidden = (m === 'mJoin');
+    gateStart();
     document.getElementById('lobbyNote').innerHTML = m === 'mHost'
-      ? 'Read out your code, wait for players to appear, then start the match'
+      ? 'Share the code or QR &middot; up to three others can join &middot; bots fill the rest'
       : m === 'mJoin'
         ? 'Type the host code and press Connect &middot; the host starts the match'
         : 'A D move &middot; W jet &middot; mouse aim &middot; click fire &middot; Q skill &middot; R reload';
@@ -3840,7 +3894,7 @@ var QRDEC = (function () {
         else netStatus('Camera did not start. Open ' + LIVE_URL + ' directly, or type the code.', true);
       });
   }
-  document.getElementById('scanBtn').addEventListener('click', function () { initAudio(); SFX.ui(); startScan(); });
+  document.getElementById('scanBtn').addEventListener('click', function () { initAudio(); SFX.ui(); goFullscreen(); startScan(); });
   document.getElementById('scanStop').addEventListener('click', function () { SFX.ui(); stopScan(); netStatus(''); });
 
   (function deepLink() {
@@ -3854,16 +3908,23 @@ var QRDEC = (function () {
   })();
   document.getElementById('joinGo').addEventListener('click', function () {
     initAudio(); SFX.ui();
+    goFullscreen();
     joinRoom(document.getElementById('codeIn').value);
   });
   document.getElementById('codeIn').addEventListener('keydown', function (e) {
     if (e.key === 'Enter') joinRoom(this.value);
   });
 
+  document.getElementById('fsBtn').addEventListener('click', function () { SFX.ui(); toggleFullscreen(); });
   setMuted(muted);
   $('sndBtn').addEventListener('click', function () { initAudio(); setMuted(!muted); if (!muted) SFX.ui(); });
   $('startBtn').addEventListener('click', function () {
     if (NET.mode === 'guest') { netStatus('The host starts the match.', true); return; }
+    if (NET.mode === 'host' && joinedCount() === 0) {
+      netStatus('Nobody has joined yet. Share the code or the QR, then start.', true);
+      return;
+    }
+    goFullscreen();
     start();
   });
   $('againBtn').addEventListener('click', function () {
