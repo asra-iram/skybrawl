@@ -8,7 +8,7 @@
 <meta name="theme-color" content="#0B0A10" />
 <style>
   :root{ padding: env(safe-area-inset-top, 0px) 0 env(safe-area-inset-bottom, 0px); }
-  html, body { height: 100%; }
+  html, body { height: 100%; overflow: hidden; overscroll-behavior: none; }
   body { margin: 0; font: 14px/1.4 system-ui, -apple-system, "Segoe UI", sans-serif; background: #07060C; }
   img { max-width: 100%; }
   [hidden] { display: none !important; }
@@ -67,7 +67,7 @@ body[data-style="shadow"] h1{background:linear-gradient(180deg,#FFF3DC,#FFB877 6
 body[data-style="shadow"] button.go{background:linear-gradient(180deg,#FFD9A6,#FFB877);color:#2A1408;box-shadow:0 0 26px rgba(255,184,119,.4)}
 
 *{box-sizing:border-box}
-html,body{height:100%}
+html,body{height:100%;overflow:hidden;overscroll-behavior:none}
 body{
   margin:0;
   background:radial-gradient(130% 100% at 50% 0%, #0C2233 0%, var(--void) 60%), var(--void);
@@ -130,8 +130,10 @@ body[data-style="shadow"] .pill.pwr.good{color:#8AF3C8;border-color:#8AF3C8}
 .board .r.lead .ko{color:var(--amber)}
 
 @media (max-height:520px){
-  .app{padding:4px 6px;gap:4px}
-  .caption{display:none}
+  .app{padding:4px 6px;gap:3px}
+  .feed{height:18px;min-height:18px;max-height:18px}
+  .feed div{font-size:8px;padding:2px 5px}
+  .caption{display:none!important}
   .hudbar{padding:3px 8px;gap:5px;border-radius:7px}
   .hudbar .m{gap:4px}
   .board .r{font-size:8.5px;line-height:1.15}
@@ -177,8 +179,8 @@ body[data-style="shadow"] .pill.pwr.good{color:#8AF3C8;border-color:#8AF3C8}
   color:var(--amber);padding:6px;pointer-events:none;
 }
 .rotate.on{display:flex}
-.feed{display:flex;gap:7px;align-items:center;justify-content:center;flex-wrap:wrap;
-  width:min(100%,158vh);min-height:20px;flex:0 0 auto}
+.feed{display:flex;gap:7px;align-items:center;justify-content:center;flex-wrap:nowrap;overflow:hidden;
+  width:min(100%,158vh);height:24px;min-height:24px;max-height:24px;flex:0 0 auto}
 .feed div{font-family:var(--font-data);font-size:10px;background:var(--panel);border:1px solid var(--line);border-radius:5px;padding:3px 8px;color:var(--muted);animation:slideIn .22s ease-out;white-space:nowrap}
 .feed b{color:var(--ink);font-weight:600}
 .feed .me{color:var(--cyan)}
@@ -234,6 +236,7 @@ h2{margin:0;font-size:clamp(20px,4.6vw,32px);font-weight:700;letter-spacing:.12e
 body.menu .stage{width:100%;aspect-ratio:auto;height:100%;max-height:100%;flex:1 1 auto;border-radius:0;border:0;box-shadow:none}
 body.menu .app{padding:0;gap:0}
 body.menu .caption{display:none}
+body.menu .feed{display:none}
 .fit{position:absolute;left:50%;top:50%;transform:translate(-50%,-50%);transform-origin:center center;display:flex;flex-direction:column;align-items:center;gap:7px;width:min(980px,100%);padding:0 12px}
 .barRow{display:flex;gap:8px;align-items:center;justify-content:center;flex-wrap:wrap}
 @media (max-width:620px){
@@ -313,6 +316,29 @@ tr.you td:first-child{font-weight:600}
 @media (prefers-reduced-motion:reduce){*{animation:none!important;transition:none!important}}
 </style>
 <body>
+<script>
+(function () {
+  function show(msg) {
+    try {
+      var d = document.getElementById('fatalBox');
+      if (!d) {
+        d = document.createElement('div');
+        d.id = 'fatalBox';
+        d.setAttribute('style', 'position:fixed;left:0;right:0;top:0;z-index:99999;background:#1A0B10;color:#FFD9D9;font:12px/1.5 ui-monospace,SFMono-Regular,Menlo,monospace;padding:12px 14px;white-space:pre-wrap;word-break:break-word;border-bottom:2px solid #FF5F6D');
+        (document.body || document.documentElement).appendChild(d);
+      }
+      d.textContent = 'Skybrawl error\n' + msg;
+    } catch (e) {}
+  }
+  window.addEventListener('error', function (e) {
+    show((e.message || 'script error') + (e.filename ? ('\n' + String(e.filename).split('/').pop() + ':' + e.lineno + ':' + e.colno) : ''));
+  });
+  window.addEventListener('unhandledrejection', function (e) {
+    var r = e.reason;
+    show('promise: ' + ((r && r.message) ? r.message : String(r)));
+  });
+})();
+</script>
 <div class="app">
   <div class="hudbar" id="hud" hidden>
     <div class="self">
@@ -932,7 +958,7 @@ tr.you td:first-child{font-weight:600}
       node.style.left = (s.bx - r.left - 52) + 'px';
       node.style.top = (s.by - r.top - 52) + 'px';
       node.classList.add('on');
-      stage.setPointerCapture(e.pointerId);
+      try { stage.setPointerCapture(e.pointerId); } catch (err) {}
     } else {
       mouse.down = true; mouse.active = true;
       var p = toWorld(e.clientX, e.clientY); mouse.x = p.x; mouse.y = p.y;
@@ -1629,7 +1655,46 @@ tr.you td:first-child{font-weight:600}
 
   // ---------- drawing ----------
   var vw = 0, vh = 0, sc = 1, ox = 0, oy = 0, dpr = 1;
+  function layout() {
+    var app = document.querySelector('.app');
+    if (!app) return;
+    var vvw = (window.visualViewport && window.visualViewport.width) || window.innerWidth || document.documentElement.clientWidth;
+    var vvh = (window.visualViewport && window.visualViewport.height) || window.innerHeight || document.documentElement.clientHeight;
+    if (!vvw || !vvh) return;
+    app.style.width = vvw + 'px';
+    app.style.height = vvh + 'px';
+    var menu = document.body.classList.contains('menu');
+    var cs = window.getComputedStyle(app);
+    var padX = parseFloat(cs.paddingLeft || 0) + parseFloat(cs.paddingRight || 0);
+    var padY = parseFloat(cs.paddingTop || 0) + parseFloat(cs.paddingBottom || 0);
+    var availW = Math.max(80, vvw - padX);
+    var availH = Math.max(80, vvh - padY);
+    var gap = parseFloat(cs.rowGap) || parseFloat(cs.gap) || 0;
+    var used = 0, kids = app.children, i;
+    for (i = 0; i < kids.length; i++) {
+      var kid = kids[i];
+      if (kid === stage) continue;
+      var ks = window.getComputedStyle(kid);
+      if (ks.position === 'absolute' || ks.position === 'fixed' || ks.display === 'none') continue;
+      var kh = kid.offsetHeight;
+      if (!kh) continue;
+      used += kh + gap;
+    }
+    var boxH = Math.max(120, availH - used);
+    var w, h;
+    if (menu) { w = availW; h = boxH; }
+    else {
+      var k = Math.min(availW / 16, boxH / 10);
+      w = Math.round(k * 16); h = Math.round(k * 10);
+    }
+    stage.style.width = w + 'px';
+    stage.style.height = h + 'px';
+    stage.style.maxWidth = 'none';
+    stage.style.maxHeight = 'none';
+    stage.style.flex = '0 0 auto';
+  }
   function resize() {
+    layout();
     var r = stage.getBoundingClientRect();
     dpr = Math.min(window.devicePixelRatio || 1, 2);
     vw = r.width; vh = r.height;
@@ -1639,6 +1704,8 @@ tr.you td:first-child{font-weight:600}
     oy = (vh - H * sc) / 2;
   }
   window.addEventListener('resize', resize);
+  window.addEventListener('orientationchange', resize);
+  if (window.visualViewport) window.visualViewport.addEventListener('resize', resize);
   function orientHint() {
     var tall = window.innerHeight > window.innerWidth;
     var cap = document.getElementById('caption');
@@ -3542,6 +3609,7 @@ var QRDEC = (function () {
     el.lobby.hidden = true; el.result.hidden = true; el.hud.hidden = false;
     document.body.classList.remove('menu');
     stopScan();
+    resize();
     boardKey = '';
     el.charName.textContent = ME().ch.name;
     whiteFlash = 0.5; timeScale = 1; hitMark = 0;
@@ -3560,6 +3628,7 @@ var QRDEC = (function () {
     el.lobby.hidden = true; el.result.hidden = true; el.hud.hidden = false;
     document.body.classList.remove('menu');
     stopScan();
+    resize();
     boardKey = '';
     el.charName.textContent = chosen.name;
     whiteFlash = 0.5; timeScale = 1; hitMark = 0;
@@ -3582,7 +3651,7 @@ var QRDEC = (function () {
     var order = game.players.slice().sort(function (a, b) { return b.kills - a.kills || a.downs - b.downs; });
     var won = order[0] === me;
     el.hud.hidden = true;
-    el.result.hidden = false; document.body.classList.add('menu');
+    el.result.hidden = false; document.body.classList.add('menu'); resize();
     el.resEyebrow.textContent = won ? 'Skybrawl' : 'Match over';
     el.resTitle.textContent = won ? 'Victory' : (me.kills === order[0].kills ? 'Tied' : 'Defeat');
     SFX.over(won); buzz(won ? [60, 60, 60, 60, 140] : [200]);
@@ -3650,6 +3719,7 @@ var QRDEC = (function () {
     fitRq = requestAnimationFrame(function () { fitRq = 0; fitLobby(); });
   }
   document.body.classList.add('menu');
+  resize();
   window.addEventListener('resize', queueFit);
   window.addEventListener('orientationchange', queueFit);
   setTimeout(queueFit, 60);
@@ -3799,7 +3869,7 @@ var QRDEC = (function () {
   $('againBtn').addEventListener('click', function () {
     el.result.hidden = true;
     el.lobby.hidden = false;
-    document.body.classList.add('menu'); queueFit();
+    document.body.classList.add('menu'); resize(); queueFit();
     running = false;
   });
 
