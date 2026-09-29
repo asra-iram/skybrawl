@@ -1,8 +1,8 @@
-<img src="banner.png" width="100%" alt="Jetpack Arena" />
+<img src="banner.png" width="100%" alt="Skybrawl" />
 
-**Jetpack Arena** is a side-view jetpack deathmatch that runs in a browser tab. No install, no account, no build step: one HTML file, plain JavaScript, canvas for everything.
+**Skybrawl** is a side-view jetpack deathmatch that runs in a browser tab. No install, no account, no build step: one HTML file, plain JavaScript, canvas for everything.
 
-Live: **https://asra-iram.github.io/jetpack-arena/**
+Live: **https://asra-iram.github.io/skybrawl/**
 
 ## Rooms
 

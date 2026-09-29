@@ -2,9 +2,9 @@
 <html lang="en">
 <head>
 <meta charset="utf-8" />
-<title>Jetpack Arena</title>
+<title>Skybrawl</title>
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
-<meta name="description" content="Jetpack Arena - a browser jetpack deathmatch. Share a four character room code and play from separate devices." />
+<meta name="description" content="Skybrawl - a browser jetpack deathmatch. Share a four character room code and play from separate devices." />
 <meta name="theme-color" content="#E8DCC6" />
 <style>
   :root{ padding: env(safe-area-inset-top, 0px) 0 env(safe-area-inset-bottom, 0px); }
@@ -294,8 +294,8 @@ tr.you td:first-child{font-weight:600}
     <button class="abBtn" id="abBtn" type="button">SKILL</button>
 
     <div class="screen" id="lobby">
-      <div class="eyebrow">Visual demo</div>
-      <h1>Jetpack Arena</h1>
+      <div class="eyebrow">Room code multiplayer</div>
+      <h1>Skybrawl</h1>
       <div class="room">ROOM <b>JX-9021</b> &middot; ARENA <b id="roomMap">NEON SKYLINE</b></div>
       <div class="roster" id="roster"></div>
       <p class="hint">Each pilot flies differently. <b>Armour</b>, <b>speed</b> and <b>fuel</b> are on the cards, and every pilot brings one skill on a cooldown.</p>
@@ -416,7 +416,7 @@ tr.you td:first-child{font-weight:600}
   function pw(p) { return (p.fx && p.fx.until > game.t) ? p.fx.id : null; }
 
   var FX_LEVEL = 'full';
-  try { FX_LEVEL = localStorage.getItem('ja_fx') || 'full'; } catch (e) {}
+  try { FX_LEVEL = localStorage.getItem('sb_fx') || 'full'; } catch (e) {}
   function fxScale() { return FX_LEVEL === 'off' ? 0 : FX_LEVEL === 'lite' ? 0.45 : 1; }
 
   // Jet infantry, drawn from the hips out. Origin sits at the middle of the body.
@@ -621,7 +621,7 @@ tr.you td:first-child{font-weight:600}
 
   // ---------- sound: everything synthesised, nothing loaded ----------
   var AC = null, master = null, noiseBuf = null, jetGain = null, jetFilt = null, muted = false;
-  try { muted = localStorage.getItem('ja_mute') === '1'; } catch (e) {}
+  try { muted = localStorage.getItem('sb_mute') === '1'; } catch (e) {}
 
   function initAudio() {
     if (AC) { if (AC.state === 'suspended') AC.resume(); return; }
@@ -711,7 +711,7 @@ tr.you td:first-child{font-weight:600}
   function setMuted(m) {
     muted = m;
     if (master) master.gain.value = muted ? 0 : 0.45;
-    try { localStorage.setItem('ja_mute', muted ? '1' : '0'); } catch (e) {}
+    try { localStorage.setItem('sb_mute', muted ? '1' : '0'); } catch (e) {}
     var b = document.getElementById('sndBtn');
     if (b) { b.textContent = muted ? 'SOUND OFF' : 'SOUND ON'; b.classList.toggle('off', muted); }
   }
@@ -2624,7 +2624,7 @@ tr.you td:first-child{font-weight:600}
     for (var i = 0; i < 4; i++) c += CODE_CHARS[(Math.random() * CODE_CHARS.length) | 0];
     return c;
   }
-  function peerIdFor(code) { return 'jpa-2f7-' + code; }
+  function peerIdFor(code) { return 'skybrawl-2f7-' + code; }
 
   function netStatus(text, bad) {
     NET.status = text;
@@ -2872,7 +2872,7 @@ tr.you td:first-child{font-weight:600}
     var won = order[0] === me;
     el.hud.hidden = true;
     el.result.hidden = false;
-    el.resEyebrow.textContent = won ? 'Jetpack Arena' : 'Match over';
+    el.resEyebrow.textContent = won ? 'Skybrawl' : 'Match over';
     el.resTitle.textContent = won ? 'Victory' : (me.kills === order[0].kills ? 'Tied' : 'Defeat');
     SFX.over(won); buzz(won ? [60, 60, 60, 60, 140] : [200]);
     el.board.innerHTML = '';
@@ -2912,7 +2912,7 @@ tr.you td:first-child{font-weight:600}
   var FX_ORDER = ['full', 'lite', 'off'];
   function setFx(v) {
     FX_LEVEL = v;
-    try { localStorage.setItem('ja_fx', v); } catch (e) {}
+    try { localStorage.setItem('sb_fx', v); } catch (e) {}
     var b = document.getElementById('fxBtn');
     b.textContent = 'Effects ' + v;
     b.classList.toggle('off', v === 'off');
