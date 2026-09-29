@@ -4,9 +4,13 @@
 
 Live: **https://asra-iram.github.io/jetpack-arena/**
 
-## State of the build
+## Rooms
 
-Local match against bots is playable end to end. Networked rooms, where two people join from separate devices with a room code, are the next piece of work and are not in this build yet.
+Open the page, press **Create room**, and share the four character code. Anyone who opens the same page, presses **Join room** and types that code drops into the same match from their own phone or laptop. No sign in, no install, and bots fill whatever slots are still empty.
+
+The host runs the simulation and sends the world out fifteen times a second. Guests send only their input back, and predict their own pilot locally so the controls stay immediate even when the connection is not. Connections are peer to peer over WebRTC data channels, brokered by the public PeerJS server, so there is no backend of mine to pay for or keep alive.
+
+If a guest leaves mid match a bot takes the slot straight away.
 
 ## How it plays
 
